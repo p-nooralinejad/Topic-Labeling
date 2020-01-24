@@ -1,0 +1,7 @@
+.DS_Store
+Papers/
+assets/
+./Papers/*
+./assets/*
+API_Call
+Parsa-proposal.docx
