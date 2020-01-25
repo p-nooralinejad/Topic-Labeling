@@ -137,4 +137,9 @@ for possible_label in possible_labels:
 for elem in thread_explored_data:
 	label_score[elem[0]] += elem[1]
 
-print(soft_and_sort(label_score))	#softmax and report possible topics
+soft = soft_and_sort(label_score)	#softmax and report possible topics
+soft_persian = {}
+for k in soft.keys():
+	soft_persian[translate(k,'en_fa')[0]] = soft[k]
+
+print(soft_persian)
