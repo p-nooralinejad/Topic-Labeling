@@ -33,8 +33,11 @@ class BrainStorm(threading.Thread):
 		local_bag_of_words = []
 		local_bag_of_words.extend(self.translate(self.persian_keyword,"fa_en")[1])
 		for word in local_bag_of_words:
-			new_list = wikipedia.search(word, results= 50)
-			self.possible_labels.extend(new_list)
+			try:
+				new_list = wikipedia.search(word, results= 45)
+				self.possible_labels.extend(new_list)
+			except:
+				pass
 		valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 		for word in local_bag_of_words:
 			if word.isalnum() and len(word) > 1 and any(valid in word for valid in valid_chars):
