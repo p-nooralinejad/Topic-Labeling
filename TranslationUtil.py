@@ -35,7 +35,7 @@ class TranslationUtil():
 		while(fwd_cnt < len(word) and word[fwd_cnt].isalnum() == False):
 			fwd_cnt += 1
 		bwd_cnt = len(word)
-		while(bwd_cnt > -1 and word[bwd_cnt - 1].isalnum() == False):
+		while(bwd_cnt > 0 and word[bwd_cnt - 1].isalnum() == False):
 			bwd_cnt-=1
 
 		if bwd_cnt < fwd_cnt:
