@@ -56,6 +56,7 @@ class TopicLabeling():
 		for thread in self.brain_storm_thread_pool:	
 			thread.join()
 		print("Translation and Label brainstorming finished, evaluating each label")
+		self.bag_of_words = self.Translator.unify(self.bag_of_words)
 		#initialize scores
 		for possible_label in self.possible_labels:
 			self.label_score[possible_label] = 0
@@ -81,12 +82,9 @@ class TopicLabeling():
 
 		#softmax and report possible topics
 		soft = self.soft_and_sort(self.label_score)	
-
-		for k in soft.keys():
-			self.soft_persian[self.translate(k,'en_fa')] = soft[k]
-
 		topic_labels = []
-		for k in self.soft_persian.keys():
-			topic_labels.append(k)
-
+		for k in soft.keys():
+			#print(k, self.translate(k,'en_fa'))
+			topic_labels.append((k , self.translate(k,'en_fa')))
+		
 		return topic_labels

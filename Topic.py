@@ -14,39 +14,18 @@ class BrainStorm(threading.Thread):
 		self.possible_labels = possible_labels
 		self.Translator = translator()
 		self.bag_of_words = bag_of_words
-
- 
-	def clear(self,word):	#removes all non alphanumeric chars from begining and end of str
-		fwd_cnt = 0
-		while(fwd_cnt < len(word) and word[fwd_cnt].isalnum() == False):
-			fwd_cnt += 1
-		bwd_cnt = len(word)
-		while(bwd_cnt > -1 and word[bwd_cnt - 1].isalnum() == False):
-			bwd_cnt-=1
-
-		if bwd_cnt < fwd_cnt:
-			return None
-
-		return word[fwd_cnt:bwd_cnt]
-
-	def unify(self, L):	# takes a list and makes its elements unique (e.g. no similars)
-		L_copy = []
-		for elem in L:
-			if elem not in L_copy:
-				L_copy.append(elem)
-		return L_copy
-
+	
 	def translate(self,word,mode):	#translates a word from farsi to english or vise-versa
 		response = self.Translator.translate(word,mode)
 		resp = response['tr']['alignments'][0][0][2]
 		res_list = []
 		for res in resp:
 			res[0] = res[0].lower()
-			res[0] = self.clear(res[0])
+			res[0] = self.Translator.clear(res[0])
 			if res[0] != None:
 				res_list.append(res[0])
 		
-		res_list = self.unify(res_list)
+		res_list = self.Translator.unify(res_list)
 		#returns the exact translation and possible similar translations
 		return [ response['tr']['base'][0][1].lower(), res_list]
 
@@ -56,7 +35,10 @@ class BrainStorm(threading.Thread):
 		for word in local_bag_of_words:
 			new_list = wikipedia.search(word, results= 50)
 			self.possible_labels.extend(new_list)
-		self.bag_of_words.extend(local_bag_of_words)
+		valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+		for word in local_bag_of_words:
+			if word.isalnum() and len(word) > 1 and any(valid in word for valid in valid_chars):
+				self.bag_of_words.append(word)
 
 class LabelMatching(threading.Thread):
 	def __init__(self, label, bag_of_words, match_score):
@@ -69,10 +51,13 @@ class LabelMatching(threading.Thread):
 		try:
 			label_description = wikipedia.summary(self.label)
 			label_description = label_description.lower()
+			label_description = label_description.split()
 			cnt = 0;
 			for word in self.bag_of_words:
-				if word in label_description:
+				if any(word in phrase for phrase in label_description):
 					cnt += 1
+				if word in self.label.lower():
+					cnt += 3
 			self.match_score.append([self.label, cnt])
 		except:
 			pass

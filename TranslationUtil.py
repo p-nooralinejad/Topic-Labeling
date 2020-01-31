@@ -22,3 +22,23 @@ class TranslationUtil():
 		r = requests.post("https://www.faraazin.ir/api/translate", data=json.dumps(payload), headers=self.faraazin_header)
 		response = json.loads(r.text)
 		return response
+
+	def unify(self, L):	# takes a list and makes its elements unique (e.g. no similars)
+		L_copy = []
+		for elem in L:
+			if elem not in L_copy:
+				L_copy.append(elem)
+		return L_copy
+	
+	def clear(self,word):	#removes all non alphanumeric chars from begining and end of str
+		fwd_cnt = 0
+		while(fwd_cnt < len(word) and word[fwd_cnt].isalnum() == False):
+			fwd_cnt += 1
+		bwd_cnt = len(word)
+		while(bwd_cnt > -1 and word[bwd_cnt - 1].isalnum() == False):
+			bwd_cnt-=1
+
+		if bwd_cnt < fwd_cnt:
+			return None
+
+		return word[fwd_cnt:bwd_cnt]
