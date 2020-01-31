@@ -5,25 +5,16 @@ import threading
 import requests
 import json
 
+from TranslationUtil import TranslationUtil as translator
+
 class BrainStorm(threading.Thread):
 	def __init__(self, persian_keyword, possible_labels, bag_of_words):
 		threading.Thread.__init__(self)
 		self.persian_keyword = persian_keyword
-		self.faraazin_header = {"Connection": "keep-alive",\
-			 "Accept": "application/json, text/plain, */*", \
-			 "Authorization": "Bearer undefined", \
-			 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36",\
-			 "Content-Type": "application/json;charset=UTF-8", \
-			 "Origin": "https://www.faraazin.ir", \
-			 "Sec-Fetch-Site": "same-origin", \
-			 "Sec-Fetch-Mode": "cors",\
-			 "Referer": "https://www.faraazin.ir/?q=%D8%AE%D9%88%D8%AF%DA%A9%D8%A7%D8%B1",\
-			 "Accept-Encoding": "gzip, deflate, br",\
-			 "Accept-Language": "en-US,en;q=0.9",\
-			 "Cookie": "_ga=GA1.2.1845074656.1579521051; G_ENABLED_IDPS=google; _mh=%22%2C19%22; _gid=GA1.2.673830774.1579615715; G_AUTHUSER_H=0"\
-		}
 		self.possible_labels = possible_labels
+		self.Translator = translator()
 		self.bag_of_words = bag_of_words
+
  
 	def clear(self,word):	#removes all non alphanumeric chars from begining and end of str
 		fwd_cnt = 0
@@ -46,9 +37,7 @@ class BrainStorm(threading.Thread):
 		return L_copy
 
 	def translate(self,word,mode):	#translates a word from farsi to english or vise-versa
-		payload = {"text":word,"mode": mode}
-		r = requests.post("https://www.faraazin.ir/api/translate", data=json.dumps(payload), headers=self.faraazin_header)
-		response = json.loads(r.text)
+		response = self.Translator.translate(word,mode)
 		resp = response['tr']['alignments'][0][0][2]
 		res_list = []
 		for res in resp:
@@ -62,7 +51,6 @@ class BrainStorm(threading.Thread):
 		return [ response['tr']['base'][0][1].lower(), res_list]
 
 	def run(self):
-		print(self.persian_keyword)
 		local_bag_of_words = []
 		local_bag_of_words.extend(self.translate(self.persian_keyword,"fa_en")[1])
 		for word in local_bag_of_words:
@@ -78,10 +66,13 @@ class LabelMatching(threading.Thread):
 		self.match_score = match_score
 	
 	def run(self):
-		label_description = wikipedia.summary(self.label)
-		label_description = label_description.lower()
-		cnt = 0;
-		for word in self.bag_of_words:
-			if word in label_description:
-				cnt += 1
-		self.match_score.append([self.label, cnt])
+		try:
+			label_description = wikipedia.summary(self.label)
+			label_description = label_description.lower()
+			cnt = 0;
+			for word in self.bag_of_words:
+				if word in label_description:
+					cnt += 1
+			self.match_score.append([self.label, cnt])
+		except:
+			pass
