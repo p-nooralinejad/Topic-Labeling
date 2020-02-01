@@ -18,7 +18,7 @@ for line in All_file:
 
 assigned = {}
 
-File = open('assigned labels','w', encoding="utf-8")
+File = open('assigned_labels.csv','w', encoding="utf-8")
 
 cnt = 0
 for k in labels.keys():
@@ -27,7 +27,7 @@ for k in labels.keys():
 	assigned[k] = topic_labeling.assign_label()
 	File.write(str(k) + ',' + str(assigned[k]) + '\n')
 	cnt += 1
-	if cnt == 2:
-		break
+	
+	print(cnt)
 
 File.close()

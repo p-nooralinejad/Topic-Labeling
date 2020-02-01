@@ -3,31 +3,16 @@ import warnings
 
 warnings.simplefilter("ignore")
 
-file_name = 'top_words.csv'
+file_name = './assets/word_list_farsi_test'
 File = open(file_name, 'r')
 All_file = File.readlines()
 File.close()
 
-All_file = All_file[1:]
-labels = {}
-for line in All_file:
-	L = line.split('\t')
-	if L[1] not in labels.keys():
-		labels[L[1]] = []
-	labels[L[1]].append(L[2])
+for i in range(0,len(All_file)):
+	All_file[i] = All_file[i][:-1]
 
-assigned = {}
+print(All_file)
 
-File = open('assigned labels','w', encoding="utf-8")
-
-cnt = 0
-for k in labels.keys():
-	persian_words = labels[k]
-	topic_labeling = TopicLabeling(persian_words)
-	assigned[k] = topic_labeling.assign_label()
-	File.write(str(k) + ',' + str(assigned[k]) + '\n')
-	cnt += 1
-	if cnt == 2:
-		break
-
-File.close()
+input()
+topic_labeling = TopicLabeling(All_file)
+print(topic_labeling.assign_label())
