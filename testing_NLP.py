@@ -3,7 +3,7 @@ import warnings
 
 warnings.simplefilter("ignore")
 
-file_name = './assets/word_list_farsi_test_4'
+file_name = './assets/word_list_farsi_test_1'
 File = open(file_name, 'r', encoding = "utf-8")
 All_file = File.readlines()
 File.close()

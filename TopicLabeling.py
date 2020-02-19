@@ -7,6 +7,7 @@ import json
 from Topic import BrainStorm as topic_brain_storm
 from Topic import LabelMatching as topic_label_matching
 from TranslationUtil import TranslationUtil as translator
+import time
 
 class TopicLabeling():
 	def __init__(self, persian_words):
@@ -41,16 +42,15 @@ class TopicLabeling():
 		return final
 
 	def translate(self,word,mode):	#translates a word from farsi to english or vise-versa
-		response = self.Translator.translate(word,mode)
-		return response['tr']['base'][0][1].lower()
+		return self.Translator.translate(word,mode)
 
 	def assign_label(self):
 		print("Initiating topic labeling for wordset:", self.persian_words)
 		for i in range(len(self.persian_words)):	
-			self.persian_words[i] = self.persian_words[i][:-1]
 			new_thread = topic_brain_storm(self.persian_words[i], self.possible_labels, self.bag_of_words)
 			self.brain_storm_thread_pool.append(new_thread)
 			new_thread.start()
+			time.sleep(1)
 
 		#wait for brainstorming to finish
 		for thread in self.brain_storm_thread_pool:	
@@ -67,7 +67,8 @@ class TopicLabeling():
 				new_thread = topic_label_matching(possible_label, self.bag_of_words, self.matching_score)	
 				new_thread.start()
 				self.label_matching_thread_pool.append(new_thread)
-				
+				#print(possible_label)
+				time.sleep(0.01)
 			except Exception as e:
 				pass
 
@@ -81,7 +82,8 @@ class TopicLabeling():
 			self.label_score[elem[0]] += elem[1]
 
 		#softmax and report possible topics
-		soft = self.soft_and_sort(self.label_score)	
+		soft = self.soft_and_sort(self.label_score)			
+		
 		topic_labels = []
 		for k in soft.keys():
 			#print(k, self.translate(k,'en_fa'))
